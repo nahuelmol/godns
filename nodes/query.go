@@ -49,6 +49,12 @@ func newQuery(message []byte) *Query {
     var queryType   string
     var queryClass  string
 
+    var message_n = len(message)
+    fmt.Printf("message lenght:%d\n", message_n)
+
+    response := utils.TakeFlags(message[12:14])
+    fmt.Printf("respone:", response)
+
     available_classes := [...]string{"INET"}
     fmt.Printf("%s\n",available_classes[0])
 
@@ -58,11 +64,11 @@ func newQuery(message []byte) *Query {
     UDPsport = binary.BigEndian.Uint16(message[4:6])
     UDPdport = binary.BigEndian.Uint16(message[6:8])
 
-    checksum = binary.BigEndian.Uint16(message[:2])
+    checksum = binary.BigEndian.Uint16(message[8:10])
 
-    trans_id   = binary.BigEndian.Uint16(message[:2])
-    parameters = binary.BigEndian.Uint16(message[:2])
- 
+    trans_id   = binary.BigEndian.Uint16(message[10:12])
+    parameters = binary.BigEndian.Uint16(message[12:14])
+    
 
     questions= binary.BigEndian.Uint16(message[:2])
     ansRR   = binary.BigEndian.Uint16(message[:2])
