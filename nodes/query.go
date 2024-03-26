@@ -3,6 +3,8 @@ package nodes
 import (
     "fmt"
     "encoding/binary"
+
+    //"dnsservice/node/utils"
 )
 
 type Query struct {
@@ -52,8 +54,8 @@ func newQuery(message []byte) *Query {
     var message_n = len(message)
     fmt.Printf("message lenght:%d\n", message_n)
 
-    response := utils.TakeFlags(message[12:14])
-    fmt.Printf("respone:", response)
+    //response := utils.TakeFlags(message[12:14])
+    //fmt.Printf("respone:", response)
 
     available_classes := [...]string{"INET"}
     fmt.Printf("%s\n",available_classes[0])

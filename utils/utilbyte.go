@@ -2,30 +2,36 @@ package utils
 
 import (
     "fmt"
-    "encoding/base64"
 )
 
-func TakeFlags(buffer []byte){
-    rawBinary := base64.StdEncoding.EncodeToString(buffer)
-    fmt.Println("raw binary: ", rawBinary)
+func TakeFlags(buffer []byte) string {
 
     var response string
-    for i:=0;i<8; i++ {
-        bit := (buffer >> i) & 1
-        fmt.Printf("Bit %d: %d\n", i, bit)
+    i := 1
+    for _, bit := range buffer {
+        fmt.Print(bit)
 
         switch i {
         case 1: //identifier, allows client to match responses
-            if bit == 0 {
-                response += "qr"
-            } else {
-                response += "rs"
+            if bit == 1 {
+                response += " id"
             }
         case 2://Operation Code the kind of query (4bits)
+            if bit == 1 {
+                response += " q1"
+            }
         case 3:
+            if bit == 1 {
+                response += " q2"
+            }
         case 4:
+            if bit == 1 {
+                response += " q3"
+            }
         case 5:
-        
+            if bit == 1 {
+                response += " q4"
+            }
         case 6:
             if bit == 1 {
                 //ath -> authorative
@@ -47,18 +53,40 @@ func TakeFlags(buffer []byte){
             if bit == 1 {
                 response += " srq"
             }
-        }
 
         case 10: //reserved for future use (3bits)
+            if bit == 1 {
+                response += " rsrv1"
+            }
         case 11:
+            if bit == 1 {
+                response += " rsrv2"
+            }
         case 12:
+            if bit == 1 {
+                response += " rsrv3"
+            }
 
         case 13://indicate response status (4bits)
+            if bit == 1 {
+                response += " rstatus1"
+            }
         case 14:
+            if bit == 1 {
+                response += " rstatus2"
+            }
         case 15:
+            if bit == 1 {
+                response += " rstatus3"
+            }
         case 16:
+            if bit == 1 {
+                response += " rstatus4"
+            }
         default:
             response += " end"
+        }
+        i+=1
     }
 
     return response

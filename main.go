@@ -17,7 +17,7 @@ func main(){
 
     udpconn, err := net.ListenUDP("udp", udpaddr)
     if err != nil {
-        fmt.Printf("error in listener ", err)
+        fmt.Printf("error in listener %s", err)
     }
     defer udpconn.Close()
 
