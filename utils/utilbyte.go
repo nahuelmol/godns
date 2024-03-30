@@ -1,15 +1,10 @@
 package utils
 
-import (
-    "fmt"
-)
-
 func TakeFlags(buffer []byte) string {
 
     var response string
     i := 1
     for _, bit := range buffer {
-        fmt.Print(bit)
 
         switch i {
         case 1: //identifier, allows client to match responses
@@ -83,8 +78,6 @@ func TakeFlags(buffer []byte) string {
             if bit == 1 {
                 response += " rstatus4"
             }
-        default:
-            response += " end"
         }
         i+=1
     }
