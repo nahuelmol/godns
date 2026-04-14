@@ -3,6 +3,9 @@
 <img src="https://img.shields.io/github/languages/code-size/nahuelmol/godns"/>
 <img src="https://img.shields.io/github/languages/top/nahuelmol/godns"/>
 
+## about this project
+Trying to implement a basic DNS server
+
 ## source
 
 DNS query message
