@@ -23,10 +23,8 @@ func StartRecording (ip string, domain string) {
 
     ipint, err := strconv.Atoi(ip)
     if err != nil {
-        fmt.Printf("there's an error %s \nconverting %s \n", err,  ip)
+        fmt.Printf("There's an error %s \nconverting %s \n", err,  ip)
     }
     record:= newRec(ipint, domain)
     fmt.Printf("%s\n",record.id)
-
-    //fmt.Printf("%s {}\n", record.hashmap['www.google.com'])
 }

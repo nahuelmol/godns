@@ -1,7 +1,6 @@
 package utils
 
 func TakeFlags(buffer []byte) string {
-
     var response string
     i := 1
     for _, bit := range buffer {
@@ -11,7 +10,7 @@ func TakeFlags(buffer []byte) string {
             if bit == 1 {
                 response += " id"
             }
-        case 2://Operation Code the kind of query (4bits)
+        case 2://Operation Code the type of query (4bits)
             if bit == 1 {
                 response += " q1"
             }

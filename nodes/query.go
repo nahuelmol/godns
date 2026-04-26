@@ -139,7 +139,8 @@ func SendReferral(domain string) string {
 
     referral := CreateReferral(14, domain, tld)
     fmt.Println(referral)
-    //I must research about anamtomy of a referal query
+    //I must research about anamtomy of a referral query
+	//When a resolver asks a server for a record it doesn't have, the server replies with a "referral"
     return "referral"
 }
 

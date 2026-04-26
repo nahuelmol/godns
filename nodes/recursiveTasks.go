@@ -5,15 +5,15 @@ import (
 )
 
 func StartingRecursive(){
-    fmt.Printf("being recursive")
+    fmt.Printf("Starting Recursive")
     //query the root servers
 }
 
 func IterativeResolution(){
-    fmt.Printf("being recursive")
+    fmt.Printf("Iterative Resolution")
 }
 
 func ResponseCache(){
-    fmt.Printf("being recursive")
+    fmt.Printf("Response Cache")
 }
 
