@@ -18,15 +18,23 @@ func main(){
         fmt.Printf("error listeninig %s", err)
     }
     defer udpconn.Close()
-    log.Println("UDP is listening", udpaddr)
+    log.Println("listening on ", udpaddr)
     buffer := make([]byte, 1024)
+
     for {
         n, addr, err := udpconn.ReadFromUDP(buffer)
         if err != nil {
             fmt.Println("error reading UDP buffer", err)
-            fmt.Println("buffer size: %d", n)
+			continue
         }
-        fmt.Printf("\nrequest from: %s", addr)
-        nodes.AnalizeQuery(buffer[:n])
+
+		packet := make([]byte, n)
+		copy(packet, buffer[:n])
+
+		go func(data []byte, client *net.UDPAddr) {
+			fmt.Printf("\nrequest from: %s", client)
+			query := nodes.AnalizeQuery(data)
+			udpconn.WriteToUDP(query.Response, addr)
+		}(packet, addr)
     }
 }

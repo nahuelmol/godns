@@ -29,12 +29,14 @@ type Query struct {
     domain      string
     queryType   string
     queryClass  string
+
+	Response  	[]byte
 }
 
-func newQuery(message []byte) *Query {
+func newQuery(packet []byte) *Query {
 
-	//header := message[:12];
-	//id := binary.BigEndian.Uint16(header[0:2])
+	header := packet[:12];
+	id := binary.BigEndian.Uint16(header[0:2])
 	//flags := binary.BigEndian.Uint16(header[2:4])
 	//qdCount := binary.BigEndian.Uint16(header[4:6])
 	//anCount := binary.BigEndian.Uint16(header[6:8])
@@ -51,28 +53,10 @@ func newQuery(message []byte) *Query {
 	//_cd := (flags >> 4) & 1
 	//_rcode := flags & 0xF
 
-	//fmt.Println("QR:", qr)
-	//fmt.Println("Opcode:", opcode)
-	//fmt.Println("AA:", aa)
-	//fmt.Println("TC:", tc)
-	//fmt.Println("RD:", rd)
-	//fmt.Println("RA:", ra)
-	//fmt.Println("AD:", ad)
-	//fmt.Println("CD:", cd)
-	//fmt.Println("RCODE:", rcode)
-
-	//fmt.Printf("\nID:%d", id)
-	//fmt.Printf("\nflags:%d", flags)
-	//fmt.Printf("\nqdCount:%d", qdCount)
-	//fmt.Printf("\nanCount:%d", anCount)
-	//fmt.Printf("\nnsCount:%d", nsCount)
-	//fmt.Printf("\narCount:%d", arCount)
-
-
 	offset := 12
 	domain := ""
 	for {
-		length := int(message[offset]);
+		length := int(packet[offset]);
 		offset++
 
 		if length == 0 {
@@ -80,130 +64,64 @@ func newQuery(message []byte) *Query {
 			break;
 		}
 
-		label := message[offset:offset+length];
+		label := packet[offset:offset+length];
 		offset+= length;
 		domain = domain + "." + string(label);
 	}
-	fmt.Println("\nqname:", domain)
-
-	qtype := binary.BigEndian.Uint16(message[offset : offset+2])
+	qtypecode := binary.BigEndian.Uint16(packet[offset : offset+2])
+	offset += 2
+	qclasscode := binary.BigEndian.Uint16(packet[offset : offset+2])
 	offset += 2
 
-	fmt.Println("\nQType:")
-	switch qtype {
+	var qtype string
+	var qclass string 
+
+	switch qtypecode {
 	case 1:
-		fmt.Println("\nIPv4")
+		qtype = "IPv4"
 	case 28:
-		fmt.Println("\nIPv6")
+		qtype = "IPv6"
 	case 15:
-		fmt.Println("\nMX")
+		qtype = "MX"
 	case 5:
-		fmt.Println("\nCNAME")
+		qtype = "CNAME"
 	}
-
-	qclass := binary.BigEndian.Uint16(message[offset : offset+2])
-	offset += 2
 	
-	fmt.Println("\nQType:")
-	switch qclass {
+	switch qclasscode {
 	case 1:
-		fmt.Println("\nIN")
+		qclass = "IN"
 	default:
 		fmt.Println("\nNot recognized QClass")
 	}
 
-    //udp := message[35:43]
-    //length  := udp[5:6]
-    //byte1   := length[0]
-    //byte2   := length[1]
-    //size    := uint16(byte1)<<8 | uint16(byte2)
+	fmt.Println("\nQType:", qtype)
+	fmt.Println("\nQClass:", qclass)
+	
+	response := make([]byte, 0, 512)
+	response = binary.BigEndian.AppendUint16(response, id)
+	response = binary.BigEndian.AppendUint16(response, 0x8180)
+	response = binary.BigEndian.AppendUint16(response, 1) // QDCOUNT
+	response = binary.BigEndian.AppendUint16(response, 1) // ANCOUNT
+	response = binary.BigEndian.AppendUint16(response, 0) // NSCOUNT
+	response = binary.BigEndian.AppendUint16(response, 0) // ARCOUNT
 
-    //otherUDPsize := binary.BigEndian.Uint16(udp[5:7]) // from 5 to 6
-    //fmt.Printf("size %d", size)
-    //fmt.Print("size %d", otherUDPsize)
+	response = append(response, packet[12:offset]...)
+	response = append(response, 0xC0, 0x0C)
+	response = binary.BigEndian.AppendUint16(response, 1)
+	response = binary.BigEndian.AppendUint16(response, 1)
+	response = binary.BigEndian.AppendUint32(response, 300)
+	response = binary.BigEndian.AppendUint16(response, 4)
+	response = append(response, 1, 2, 3, 4)
 
-    //var message_n = len(message)
-    //fmt.Printf("message lenght:%d\n", message_n)
-
-    //available_classes := [...]string{"INET"}
-    //fmt.Printf("%s\n",available_classes[0])
-
-    //MAChead := binary.BigEndian.Uint16(message[:14])
-
-    //ipHeader := 14
-    //ipVersion := "unknown IPv"
-    //ipLength := 20
-
-    /*if message[ipHeader]&0xF0 == 0x40 {
-        ipVersion = "IPv4"
-        ipLength = 20
-    } else if message[ipHeader]&0xF0 == 0x60 {
-        ipVersion = "IPv6"
-        ipLength = 40
-    }*/
-    //fmt.Printf("the ip version is: %s\n", ipVersion)
-    //ipEnd := 14 + ipLength
-    //IPv    := binary.BigEndian.Uint16(message[14:ipEnd])
-
-    //UDPstt := ipEnd
-    //UDPend := UDPstt + 8
-    //UDPheader := binary.BigEndian.Uint16(message[UDPstt:UDPend])
-    //DNSstt := UDPend
-    //chksum := DNSstt + 10
-
-    //checksum := uint16(binary.BigEndian.Uint16(message[0:2]))
-
-    //trans_id   := binary.BigEndian.Uint16(message[10:12])
-    //flags      := utils.TakeFlags(message[12:14])
-
-    //questions:= binary.BigEndian.Uint16(message[14:16])
-    //ansRR   := binary.BigEndian.Uint16(message[16:18])
-    //authRR  := binary.BigEndian.Uint16(message[18:20])
-    //addRR   := binary.BigEndian.Uint16(message[20:22])
-
-    //domain      := string(message[22:24])
-    //queryType   := string(message[24:26])
-    //queryClass  := string(message[26:28])
-    //here I must convert byte data into string or legible data in general
-
-    //return &Query {
-    //    checksum:checksum,
-    //        
-    //    questions:questions,
-    //    ansRR:ansRR,
-    //    authRR:authRR,
-    //    addRR:addRR,
-
-    //    //the query
-    //    domain:domain,
-    //    queryType:queryType,
-    //    queryClass:queryClass,
-    //}
-	return &Query {}
+	return &Query {
+		Response:response,
+	}
 }
 
 
-func AnalizeQuery(packet []byte) {
-    _ = newQuery(packet);
-    //fmt.Printf("IPv4:%d\n ", query.IPv)
-    //fmt.Printf("Mac Head:%d\n ", query.MAChead)
-    //fmt.Printf("UDP head:%d\n ", query.UDPheader)
-
-    //fmt.Printf("questions:%d\n ", query.questions)
-    //fmt.Printf("answer:%d\n ", query.ansRR)
-    //fmt.Printf("auth:%d\n ", query.authRR)
-    //fmt.Printf("add:%d\n ", query.addRR)
-
-    //fmt.Printf("flags:%s\n", query.flags)
-    //fmt.Printf("domain:%s\n", query.domain)
-    //fmt.Printf("query type:%s\n", query.queryType)
-    //fmt.Printf("query class:%s\n", query.queryClass)
-
-    //check if I have an IP asociated to the domain,    
-    //counter returns a referral to other authorative server
-
-    //SendReferral(domain)
-    //I need to know how is the structure of a query
+func AnalizeQuery(packet []byte) *Query {
+	query := newQuery(packet);
+	return query 
 }
 
 func SendReferral(domain string) string {
@@ -215,8 +133,6 @@ func SendReferral(domain string) string {
 
     referral := CreateReferral(14, domain, tld)
     fmt.Println(referral)
-    //I must research about anamtomy of a referral query
-	//When a resolver asks a server for a record it doesn't have, the server replies with a "referral"
     return "referral"
 }
 
